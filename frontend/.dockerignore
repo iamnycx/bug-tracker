@@ -1,0 +1,15 @@
+node_modules
+.pnp
+.pnp.js
+dist
+dist-ssr
+build
+.env
+.env.local
+.env.*.local
+.vscode
+.git
+.gitignore
+Dockerfile*
+*.tsbuildinfo
+*.md

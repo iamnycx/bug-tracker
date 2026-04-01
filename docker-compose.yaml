@@ -1,0 +1,46 @@
+services:
+    db:
+        image: postgres:16-alpine
+        environment:
+            POSTGRES_USER: bugtracker
+            POSTGRES_PASSWORD: bugtracker
+            POSTGRES_DB: bugtracker
+        ports:
+            - '5432:5432'
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready -U bugtracker']
+            interval: 5s
+            timeout: 5s
+            retries: 5
+
+    backend:
+        build:
+            context: ./backend
+            target: dev
+        ports:
+            - '5000:5000'
+        environment:
+            DATABASE_URL: postgresql://bugtracker:bugtracker@db:5432/bugtracker
+            FLASK_ENV: development
+        depends_on:
+            db:
+                condition: service_healthy
+        volumes:
+            - ./backend:/app
+
+    frontend:
+        build: ./frontend
+        ports:
+            - '5173:5173'
+        environment:
+            VITE_API_URL: http://backend:5000
+        depends_on:
+            - backend
+        volumes:
+            - ./frontend:/app
+            - /app/node_modules
+
+volumes:
+    postgres_data:
