@@ -279,6 +279,12 @@ ADMIN_EMAIL=admin@bugtracker.local
 ADMIN_PASSWORD=admin12345
 ```
 
+If you use Vercel preview deployments, you can allow all Vercel subdomains by setting:
+
+```bash
+CORS_ORIGINS=https://*.vercel.app,https://your-vercel-app.vercel.app,http://localhost:5173
+```
+
 If you use Neon, copy the pooled or direct connection string from Neon and paste it into `DATABASE_URL`. If the connection requires SSL, keep the `sslmode=require` option that Neon provides.
 
 ### Frontend on Vercel

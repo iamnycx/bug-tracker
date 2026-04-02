@@ -1,4 +1,5 @@
 from datetime import timedelta
+from fnmatch import fnmatch
 from flask import Flask, request
 from .extensions import db, migrate, jwt
 from .config import settings
@@ -7,6 +8,15 @@ from .config import settings
 def _allowed_origins() -> set[str]:
     origins = [origin.strip() for origin in settings.CORS_ORIGINS.split(",")]
     return {origin for origin in origins if origin}
+
+
+def _origin_is_allowed(request_origin: str, allowed_origins: set[str]) -> bool:
+    for allowed_origin in allowed_origins:
+        if allowed_origin == request_origin:
+            return True
+        if "*" in allowed_origin and fnmatch(request_origin, allowed_origin):
+            return True
+    return False
 
 
 def create_app(config_overrides: dict | None = None):
@@ -53,7 +63,7 @@ def create_app(config_overrides: dict | None = None):
     @app.after_request
     def apply_cors_headers(response):
         request_origin = request.headers.get("Origin")
-        if request_origin and request_origin in allowed_origins:
+        if request_origin and _origin_is_allowed(request_origin, allowed_origins):
             response.headers["Access-Control-Allow-Origin"] = request_origin
             response.headers["Vary"] = "Origin"
             response.headers["Access-Control-Allow-Credentials"] = "true"
