@@ -19,6 +19,21 @@ Core workflow:
 
 The system enforces guard conditions so invalid transitions are blocked by design.
 
+## Default Admin Credentials
+
+For local/dev bootstrapping, the backend creates (or updates) an admin user with:
+
+- Email: `admin@bugtracker.local`
+- Password: `admin12345`
+
+In production, you should set these through environment variables on Render:
+
+- `ADMIN_NAME`
+- `ADMIN_EMAIL`
+- `ADMIN_PASSWORD`
+
+The app bootstraps this admin account automatically (idempotent) so it exists in your deployed database.
+
 ## Product Goals
 
 - Prevent invalid bug states with centralized transition rules
@@ -222,6 +237,9 @@ From `backend/.env.example`:
 - `DATABASE_URL`
 - `DEBUG`
 - `CORS_ORIGINS`
+- `ADMIN_NAME`
+- `ADMIN_EMAIL`
+- `ADMIN_PASSWORD`
 
 ### Frontend
 
@@ -246,7 +264,7 @@ Deploy the backend as a Docker service using the production stage from `backend/
 Use these settings:
 
 - Build command: use the Dockerfile
-- Start command: `granian --interface wsgi run:app --host 0.0.0.0 --port 8000`
+- Start command: `sh -c "uv run flask --app run db upgrade && exec uv run granian --interface wsgi run:app --host 0.0.0.0 --port 8000"`
 - Environment variables:
 
 ```bash
@@ -256,6 +274,9 @@ JWT_ACCESS_TOKEN_EXPIRES_MINUTES=120
 DATABASE_URL=postgresql://...
 DEBUG=False
 CORS_ORIGINS=https://your-vercel-app.vercel.app,http://localhost:5173
+ADMIN_NAME=Admin
+ADMIN_EMAIL=admin@bugtracker.local
+ADMIN_PASSWORD=admin12345
 ```
 
 If you use Neon, copy the pooled or direct connection string from Neon and paste it into `DATABASE_URL`. If the connection requires SSL, keep the `sslmode=require` option that Neon provides.
@@ -292,6 +313,17 @@ VITE_API_URL=http://localhost:5000
 ```
 
 This keeps local Docker Compose working while using separate production values in Vercel and Render.
+
+### Keep Admin User In Render + Neon
+
+To keep this admin user available in your deployed app:
+
+1. Set `ADMIN_NAME`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD` in Render environment variables.
+2. Keep `DATABASE_URL` pointed to your Neon database.
+3. Ensure migrations run (`flask db upgrade`) during deploy/start.
+4. Trigger one request after deploy (for example `GET /auth/me` or `POST /auth/login`) so admin bootstrap runs.
+
+Because Neon is persistent, the admin row remains in the database across restarts/redeploys. The bootstrap is safe to run repeatedly and will keep the admin account aligned with your configured env vars.
 
 ### Deployment Checklist
 

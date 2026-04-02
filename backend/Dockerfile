@@ -22,4 +22,4 @@ CMD ["uv", "run", "flask", "--app", "run", "run", "--host", "0.0.0.0", "--port",
 # --- prod stage ---
 FROM base AS prod
 RUN uv add granian
-CMD ["uv", "run", "granian", "--interface", "wsgi", "run:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "uv run flask --app run db upgrade && exec uv run granian --interface wsgi run:app --host 0.0.0.0 --port 8000"]
