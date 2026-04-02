@@ -269,5 +269,3 @@ This repository includes:
 - Enforced bug lifecycle transitions and guard rules
 - Kanban dashboard with create flows and comments
 - Backend and frontend automated test coverage
-
-If you want, a next step is adding a small OpenAPI section and curl examples for each endpoint in this README.
