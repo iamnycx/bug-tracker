@@ -118,20 +118,51 @@ Bugs:
 
 ## Quick Start (Recommended: Docker)
 
-1. Create env files:
-    - Copy `backend/.env.example` to `backend/.env`
-    - Copy `frontend/.env.example` to `frontend/.env`
+1. Clone the repository:
 
-2. Start full stack:
-    - `docker compose up --build`
+```bash
+git clone https://github.com/iamnycx/bug-tracker.git
+cd bug-tracker
+```
 
-3. Open apps:
-    - Frontend: http://localhost:5173
-    - Backend: http://localhost:5000
+2. Create env files:
+
+```bash
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+```
+
+3. Start full stack:
+
+```bash
+docker compose up --build
+```
+
+4. Open apps:
+
+- Frontend: http://localhost:5173
+- Backend: http://localhost:5000
+
+5. Stop the stack:
+
+```bash
+docker compose down
+```
+
+6. Reset the database and volumes if you need a clean start:
+
+```bash
+docker compose down -v
+```
 
 Notes:
 
-- Backend container runs migrations on startup (`flask db upgrade`)
+- Backend container runs migrations on startup:
+
+```bash
+flask db upgrade
+```
+
 - Code is bind-mounted for hot reload in both frontend and backend services
 
 ## Local Development (Without Docker)
@@ -139,20 +170,41 @@ Notes:
 ### Backend
 
 1. From `backend/`:
-    - `uv venv .venv`
-    - `uv sync --dev`
-2. Set environment variables (or use `backend/.env`)
-3. Run migrations:
-    - `uv run flask --app run db upgrade`
-4. Start server:
-    - `uv run flask --app run run --host 0.0.0.0 --port 5000 --debug`
+
+```bash
+cd backend
+uv venv .venv
+uv sync --dev
+cp .env.example .env
+```
+
+2. Run migrations:
+
+```bash
+uv run flask --app run db upgrade
+```
+
+3. Start server:
+
+```bash
+uv run flask --app run run --host 0.0.0.0 --port 5000 --debug
+```
 
 ### Frontend
 
 1. From `frontend/`:
-    - `bun install`
+
+```bash
+cd frontend
+bun install
+cp .env.example .env
+```
+
 2. Start dev server:
-    - `bun run dev`
+
+```bash
+bun run dev
+```
 
 ## Environment Variables
 
@@ -181,20 +233,25 @@ From `frontend/.env.example`:
 
 Common commands (backend):
 
-- Create migration: `uv run flask --app run db migrate -m "message"`
-- Apply migration: `uv run flask --app run db upgrade`
+```bash
+uv run flask --app run db migrate -m "message"
+uv run flask --app run db upgrade
+```
 
 ## Testing
 
 ### Backend
 
-- Run all tests:
-    - `docker compose exec -T backend sh -lc 'PYTHONPATH=/app uv run pytest tests -q'`
+```bash
+docker compose exec -T backend sh -lc 'PYTHONPATH=/app uv run pytest tests -q'
+```
 
 ### Frontend
 
-- Run Vitest suite:
-    - `cd frontend && bun run test`
+```bash
+cd frontend
+bun run test
+```
 
 Important:
 
