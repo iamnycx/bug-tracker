@@ -1,5 +1,9 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from ..extensions import db
+
+
+def utcnow() -> datetime:
+    return datetime.now(timezone.utc)
 
 
 class User(db.Model):
@@ -9,12 +13,16 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False, index=True)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    password_hash = db.Column(db.String(255), nullable=False)
+    credential_password = db.Column(db.String(255), nullable=True)
+    role = db.Column(db.String(50), nullable=False, default="member", index=True)
+    is_blocked = db.Column(db.Boolean, nullable=False, default=False, index=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=utcnow)
     updated_at = db.Column(
         db.DateTime, 
         nullable=False, 
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        default=utcnow,
+        onupdate=utcnow
     )
 
     # Relationships

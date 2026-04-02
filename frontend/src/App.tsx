@@ -1,9 +1,22 @@
-import Container from './components/container';
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { ProtectedRoute } from './components/auth/protected-route';
+import DashboardPage from './pages/dashboard-page';
+import LoginPage from './pages/login-page';
 
 export default function App() {
 	return (
-		<Container >
-			<h1>Bug</h1>
-		</Container>
+		<Routes>
+			<Route path='/login' element={<LoginPage />} />
+			<Route
+				path='/dashboard'
+				element={
+					<ProtectedRoute>
+						<DashboardPage />
+					</ProtectedRoute>
+				}
+			/>
+			<Route path='/' element={<Navigate to='/dashboard' replace />} />
+			<Route path='*' element={<Navigate to='/dashboard' replace />} />
+		</Routes>
 	);
 }

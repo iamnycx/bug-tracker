@@ -1,13 +1,15 @@
 from flask import Blueprint, request
 from pydantic import ValidationError
+
 from ..schema import ProjectCreate, ProjectRead
 from ..services import ProjectService
-from .utils import api_response
+from .utils import api_response, log_unexpected_error, require_roles
 
 projects_bp = Blueprint("projects", __name__, url_prefix="/projects")
 
 
 @projects_bp.post("")
+@require_roles("admin")
 def create_project():
     """Create a new project."""
     try:
@@ -21,11 +23,13 @@ def create_project():
             data=ProjectRead.model_validate(project).model_dump(),
             status_code=201,
         )
-    except Exception as e:
+    except Exception:
+        log_unexpected_error("projects.create_project")
         return api_response(error="Internal server error", status_code=500)
 
 
 @projects_bp.get("")
+@require_roles("admin", "member")
 def list_projects():
     """List all projects."""
     try:
@@ -34,11 +38,13 @@ def list_projects():
             data=[ProjectRead.model_validate(p).model_dump() for p in projects],
             status_code=200,
         )
-    except Exception as e:
+    except Exception:
+        log_unexpected_error("projects.list_projects")
         return api_response(error="Internal server error", status_code=500)
 
 
 @projects_bp.get("/<int:project_id>")
+@require_roles("admin", "member")
 def get_project(project_id: int):
     """Get a project by ID."""
     try:
@@ -50,5 +56,6 @@ def get_project(project_id: int):
             data=ProjectRead.model_validate(project).model_dump(),
             status_code=200,
         )
-    except Exception as e:
+    except Exception:
+        log_unexpected_error("projects.get_project")
         return api_response(error="Internal server error", status_code=500)

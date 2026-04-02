@@ -11,12 +11,12 @@ class CommentService:
     def create_comment(bug_id: int, author_id: int, text: str) -> Comment:
         """Create a new comment."""
         # Verify bug exists
-        bug = Bug.query.get(bug_id)
+        bug = db.session.get(Bug, bug_id)
         if not bug:
             raise ValueError(f"Bug {bug_id} not found")
         
         # Verify author exists
-        author = User.query.get(author_id)
+        author = db.session.get(User, author_id)
         if not author:
             raise ValueError(f"User {author_id} not found")
         
@@ -28,7 +28,7 @@ class CommentService:
     @staticmethod
     def get_comment_by_id(comment_id: int) -> Optional[Comment]:
         """Get comment by ID."""
-        return Comment.query.get(comment_id)
+        return db.session.get(Comment, comment_id)
 
     @staticmethod
     def list_comments(bug_id: int) -> list[Comment]:
@@ -38,7 +38,7 @@ class CommentService:
     @staticmethod
     def delete_comment(comment_id: int) -> bool:
         """Delete a comment."""
-        comment = Comment.query.get(comment_id)
+        comment = db.session.get(Comment, comment_id)
         if not comment:
             raise ValueError(f"Comment {comment_id} not found")
         

@@ -1,5 +1,9 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from ..extensions import db
+
+
+def utcnow() -> datetime:
+    return datetime.now(timezone.utc)
 
 
 class Comment(db.Model):
@@ -10,12 +14,12 @@ class Comment(db.Model):
     bug_id = db.Column(db.Integer, db.ForeignKey("bugs.id"), nullable=False, index=True)
     author_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
     text = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=utcnow)
     updated_at = db.Column(
         db.DateTime,
         nullable=False,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        default=utcnow,
+        onupdate=utcnow
     )
 
     # Relationships

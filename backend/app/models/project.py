@@ -1,5 +1,9 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from ..extensions import db
+
+
+def utcnow() -> datetime:
+    return datetime.now(timezone.utc)
 
 
 class Project(db.Model):
@@ -9,12 +13,12 @@ class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text, nullable=True)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=utcnow)
     updated_at = db.Column(
         db.DateTime,
         nullable=False,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        default=utcnow,
+        onupdate=utcnow
     )
 
     # Relationships

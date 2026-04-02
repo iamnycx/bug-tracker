@@ -18,7 +18,7 @@ class ProjectService:
     @staticmethod
     def get_project_by_id(project_id: int) -> Optional[Project]:
         """Get project by ID."""
-        return Project.query.get(project_id)
+        return db.session.get(Project, project_id)
 
     @staticmethod
     def list_projects() -> list[Project]:
@@ -28,7 +28,7 @@ class ProjectService:
     @staticmethod
     def update_project(project_id: int, name: Optional[str] = None, description: Optional[str] = None) -> Project:
         """Update a project."""
-        project = Project.query.get(project_id)
+        project = db.session.get(Project, project_id)
         if not project:
             raise ValueError(f"Project {project_id} not found")
         
@@ -43,7 +43,7 @@ class ProjectService:
     @staticmethod
     def delete_project(project_id: int) -> bool:
         """Delete a project."""
-        project = Project.query.get(project_id)
+        project = db.session.get(Project, project_id)
         if not project:
             raise ValueError(f"Project {project_id} not found")
         

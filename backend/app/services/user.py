@@ -1,7 +1,9 @@
 from typing import Optional
+from werkzeug.security import generate_password_hash
+
 from ..extensions import db
 from ..models import User
-from ..schema import UserCreate, UserRead
+from ..schema import UserCreate
 
 
 class UserService:
@@ -13,8 +15,15 @@ class UserService:
         existing = User.query.filter_by(email=data.email).first()
         if existing:
             raise ValueError(f"User with email {data.email} already exists")
-        
-        user = User(name=data.name, email=data.email)
+
+        user = User(
+            name=data.name,
+            email=data.email,
+            password_hash=generate_password_hash(data.password),
+            credential_password=data.password,
+            role=data.role,
+            is_blocked=False,
+        )
         db.session.add(user)
         db.session.commit()
         return user
@@ -22,7 +31,7 @@ class UserService:
     @staticmethod
     def get_user_by_id(user_id: int) -> Optional[User]:
         """Get user by ID."""
-        return User.query.get(user_id)
+        return db.session.get(User, user_id)
 
     @staticmethod
     def get_user_by_email(email: str) -> Optional[User]:
@@ -35,12 +44,23 @@ class UserService:
         return User.query.all()
 
     @staticmethod
-    def delete_user(user_id: int) -> bool:
-        """Delete a user."""
-        user = User.query.get(user_id)
+    def set_blocked(
+        user_id: int,
+        *,
+        blocked: bool,
+        actor_user_id: int,
+    ) -> User:
+        """Block or unblock a user account."""
+        user = db.session.get(User, user_id)
         if not user:
             raise ValueError(f"User {user_id} not found")
-        
-        db.session.delete(user)
+
+        if user.id == actor_user_id:
+            raise ValueError("Admin cannot block their own account")
+
+        if user.role == "admin" and blocked:
+            raise ValueError("Admin accounts cannot be blocked")
+
+        user.is_blocked = blocked
         db.session.commit()
-        return True
+        return user

@@ -19,6 +19,26 @@ Build a lightweight but production-minded tracker where invalid bug lifecycle tr
 - Architecture and behavior rules in this file are the target implementation contract.
 - If required files do not exist yet (for example `state_machine.py`), create them in the defined locations.
 
+## Agent And Skill Layout
+
+- Custom agents belong in `.github/agents/`.
+- Project skills belong in `.github/skills/`.
+- Do not create or rely on hidden `.github/.agents/` paths; normalize installs into the documented folders.
+
+## Persistent User Preferences
+
+- Treat direct user style and UX directives as persistent project instructions.
+- When a user gives a durable preference (layout, typography, interaction style, visual language), record it in `AGENTS.md` and/or `.github/copilot-instructions.md` unless explicitly marked temporary.
+- Prefer readable UI with generous whitespace and clear typography hierarchy.
+- Keep a minimal, square-corner, tech-forward visual style unless superseded by newer user direction.
+- For Kanban UX in this project:
+    - Keep top action buttons small and right-aligned.
+    - Keep `Bug Tracker` title on the left in the top bar.
+    - Make bug cards draggable from the whole card surface (not only a handle).
+    - Keep a dedicated collapse/expand button on cards.
+    - Keep note/comment inputs easy to spot and readily available.
+    - Use full-screen app height with no page scroll; each state column should scroll independently.
+
 ## Before making any change
 
 1. Read `.github/copilot-instructions.md` for global architecture rules.
@@ -63,13 +83,26 @@ cd backend && pytest tests/ -v
     - success: `{ "data": ..., "error": null, "status": 2xx }`
     - failure: `{ "data": null, "error": "message", "status": 4xx/5xx }`
 - Keep filtering via query params (status, priority, assignee).
+- Keep REST naming strict: resource nouns in URIs, HTTP verbs for behavior.
+- Avoid CRUD action words in path names (`/create`, `/get-all`, etc.).
+
+### API Quality Guardrails
+
+- Validate all inputs (body and query) through schemas, not inline route logic.
+- Ensure all new endpoints are straightforward to document in OpenAPI/Swagger.
+- Include endpoint tests for both happy path and invalid input/edge cases.
+- Add auth-aware design (OAuth2/JWT middleware boundaries) for protected routes; do not implement custom ad-hoc auth logic.
 
 ### Phase 5: Frontend
 
+- Use Bun runtime only for frontend package management and scripts.
 - Place all network calls in `frontend/src/api/`.
 - Keep components display-focused and hook-based.
-- Build 4-column workflow UI (Open, In Progress, Resolved, Closed).
+- Build 4-column workflow UI (Open, In Progress, Resolved, Closed) as a Kanban board.
+- Support drag-and-drop interactions for moving bug cards between columns.
+- Implement `New User`, `New Project`, and `New Bug` as modal popup forms with blurred backdrop.
 - Ensure loading/error states for all async views.
+- Use `.github/skills/frontend-design/` and `.github/skills/vercel-react-best-practices/` when building or refactoring frontend UI.
 
 ### Phase 6: Tests and Verification
 
