@@ -6,6 +6,8 @@ Production-minded bug tracker with a strict lifecycle state machine, role-based 
 
 This repository contains a full-stack bug tracking system built for correctness and maintainability.
 
+**Live demo:** https://bug-tracker-tau-liart.vercel.app
+
 - Backend: Flask, SQLAlchemy, Flask-Migrate, JWT auth
 - Frontend: React, TypeScript, Vite, Bun, Tailwind, dnd-kit
 - Database: PostgreSQL
