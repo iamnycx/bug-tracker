@@ -178,6 +178,8 @@ uv sync --dev
 cp .env.example .env
 ```
 
+If you do not want to run a local PostgreSQL instance for manual development, set `DATABASE_URL=sqlite:///dev.db` in `backend/.env` instead of the Postgres connection string.
+
 2. Run migrations:
 
 ```bash
@@ -224,6 +226,79 @@ From `backend/.env.example`:
 From `frontend/.env.example`:
 
 - `VITE_API_URL`
+
+## Deployment
+
+This project is compatible with local development and cloud deployment at the same time.
+
+Recommended hosting layout:
+
+- Frontend: Vercel
+- Backend: Render
+- Database: Neon PostgreSQL
+
+### Backend on Render
+
+Deploy the backend as a Docker service using the production stage from `backend/Dockerfile`.
+
+Use these settings:
+
+- Build command: use the Dockerfile
+- Start command: `granian --interface wsgi run:app --host 0.0.0.0 --port 8000`
+- Environment variables:
+
+```bash
+SECRET_KEY=your-strong-secret
+JWT_SECRET_KEY=your-strong-jwt-secret
+JWT_ACCESS_TOKEN_EXPIRES_MINUTES=120
+DATABASE_URL=postgresql://...
+DEBUG=False
+CORS_ORIGINS=https://your-vercel-app.vercel.app,http://localhost:5173
+```
+
+If you use Neon, copy the pooled or direct connection string from Neon and paste it into `DATABASE_URL`. If the connection requires SSL, keep the `sslmode=require` option that Neon provides.
+
+### Frontend on Vercel
+
+Set the frontend environment variable in Vercel:
+
+```bash
+VITE_API_URL=https://your-render-backend.onrender.com
+```
+
+Use these build settings:
+
+- Framework preset: Vite
+- Build command: `bun run build`
+- Output directory: `dist`
+
+### Local Development Together With Cloud Deployments
+
+For local Docker development, keep these values in `backend/.env` and `frontend/.env`:
+
+```bash
+# backend/.env
+SECRET_KEY=dev-secret-change-me
+JWT_SECRET_KEY=change-this-to-a-long-random-secret-at-least-32-characters
+JWT_ACCESS_TOKEN_EXPIRES_MINUTES=120
+DATABASE_URL=postgresql://bugtracker:bugtracker@db:5432/bugtracker
+DEBUG=True
+CORS_ORIGINS=http://localhost:5173
+
+# frontend/.env
+VITE_API_URL=http://localhost:5000
+```
+
+This keeps local Docker Compose working while using separate production values in Vercel and Render.
+
+### Deployment Checklist
+
+1. Push the repository to GitHub.
+2. Create a Neon PostgreSQL database.
+3. Deploy the backend to Render and set `DATABASE_URL`, `SECRET_KEY`, `JWT_SECRET_KEY`, and `CORS_ORIGINS`.
+4. Deploy the frontend to Vercel and set `VITE_API_URL` to the Render backend URL.
+5. Update `CORS_ORIGINS` to include the final Vercel domain.
+6. Redeploy both services after changing environment variables.
 
 ## Database and Migrations
 

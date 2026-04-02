@@ -265,9 +265,11 @@ describe('Dashboard integration flows', () => {
 
 		await screen.findAllByText('Cannot save form');
 
-		const card = screen.getAllByRole('button', {
-			name: 'Bug #100 High Cannot save form',
-		})[0].closest('article');
+		const card = screen
+			.getAllByRole('button', {
+				name: 'Bug #100 High Cannot save form',
+			})[0]
+			.closest('article');
 		if (!card) {
 			throw new Error('expected bug card');
 		}

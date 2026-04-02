@@ -51,7 +51,8 @@ export function UsersProjectsModal({
 									<>
 										<p className='text-[10px] text-zinc-400'>
 											Credentials: {user.email} /{' '}
-											{user.credential_password ?? 'Not available'}
+											{user.credential_password ??
+												'Not available'}
 										</p>
 										<div className='flex justify-end'>
 											<button
@@ -59,14 +60,18 @@ export function UsersProjectsModal({
 												disabled={actionPending}
 												onClick={() => {
 													if (user.is_blocked) {
-														void onUnblockUser?.(user.id);
+														void onUnblockUser?.(
+															user.id,
+														);
 														return;
 													}
 													void onBlockUser?.(user.id);
 												}}
 												className='text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-400 underline underline-offset-4 disabled:cursor-not-allowed disabled:opacity-50'
 											>
-												{user.is_blocked ? 'Unblock User' : 'Block User'}
+												{user.is_blocked
+													? 'Unblock User'
+													: 'Block User'}
 											</button>
 										</div>
 									</>
